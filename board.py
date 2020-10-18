@@ -211,19 +211,31 @@ class Casa:
 
 class Player:
     
-    def __init__(self, player_id, xi, yi):
+    def __init__(self, player_id, casa):
         
         self.width  = 5
         self.height = 5
-        self.x = xi
-        self.y = yi
         
         if player_id == '0':    
             self.color = (0, 0, 0)
             self.player_id = 0
-
+            print(casa.x1)
+            print(casa.y1)
+            print(casa.x2)
+            print(casa.y2)
+            
+            self.x1 = casa.x1  
+            self.y1 = casa.y1
+            self.x2 = casa.x2 
+            self.y2 = casa.y2 
+            
+        elif player_id == '1':
+            self.color = (188, 51, 215)
+            self.player_id = 1
+            self.x = casa.x1
+            self.y = casa.y1 
+            
         self.posicao_atual = 0
-        
         self.message()
         
     def atualiza_posicao(self, resultado, path):
@@ -234,8 +246,10 @@ class Player:
             
         casa = path[self.posicao_atual]
         
-        self.x = casa.x1
-        self.y = casa.y1
+        self.x1 = casa.x1  
+        self.y1 = casa.y1
+        self.x2 = casa.x2 
+        self.y2 = casa.y2 
         #print(f"X: {self.x}")
         #print(f"Y: {self.y}")
 
@@ -255,7 +269,7 @@ class Player:
             print("\nRole o dado novamente!")        
 
     def draw(self, screen):
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height))
+        pygame.draw.rect(screen, self.color, (self.x1, self.y1, self.x2, self.y2))
         #font = pygame.font.SysFont('comicsans', 20)
         #text = font.render(self.button_text, 1, (0, 0, 0))
         #screen.blit(text, (self.button_x + round(self.button_width/2) - round(text.get_width()/2), self.button_y + round(self.button_height/2) - round(text.get_height()/2)))
@@ -289,8 +303,10 @@ game.board_coloring()
 game.create_path()
 
 # Player
-player_1 = Player('0', game.path[0].x1, game.path[0].y1)
+player_1 = Player('0', game.path[0])
 game.add_player(player_1)
+
+#player_1 = Player('1')
 
 # Loop until the user clicks the close button.
 done = False
