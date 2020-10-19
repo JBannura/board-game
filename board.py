@@ -67,7 +67,7 @@ class Game:
     
     # Dice Roll
     def dice_roll(self):
-        diceRoll = random.randint(1, 1)
+        diceRoll = random.randint(1, 6)
         print(f"Rolou: {diceRoll}")
         return diceRoll
     
@@ -150,28 +150,80 @@ class Game:
         self.path[-1].color  = (235, 203, 0)
         self.path[0].color = (164, 164, 164)
         
-        dict_ = {}
-        for index in range(0, 24):
-            
-            casa = random.randint(1, 46)
-    
-            if len(dict_) > 0:
-                try:
-                    if casa in dict_:
-                        while casa in dict_:
-                            casa = random.randint(1, 46)
-                        
-                except KeyError:
-                    pass
-                
-            if index >= 12:
-                self.path[casa].bad_place()
-            
-            else:
-                self.path[casa].good_place()
-            
-            dict_[casa] = casa
+        """
+        Board Design:   48 casas
+                        24 casas com efeito
+                        12 casas com efeito positivo
+                        12 casas com efeito negativo
 
+                        0 - casa neutra
+                        1 - casa boa
+                        2 - casa ruim
+        """
+        
+        path_dict = {0: 0,
+                    1: [1, 1],
+                    2: 0,
+                    3: [2, -1],
+                    4: [1, 1],
+                    5: 0,
+                    6: 0,
+                    7: [1, 4],
+                    8: [2, -2],
+                    9: [1, 1],
+                    10: 0,
+                    11: [2, -1],
+                    12: 0,
+                    13: [2, -1],
+                    14: 0,
+                    15: 0,
+                    16: [2, -2],
+                    17: 0,
+                    18: [1, 1],
+                    19: [2, -2],
+                    20: 0,
+                    21: [2, -1],
+                    22: [1, 1],
+                    23: 0,
+                    24: 0,
+                    25: [1, 1],
+                    26: 0,
+                    27: [1, 2],
+                    28: [2, -1],
+                    29: 0,
+                    30: [1, 1],
+                    31: 0,
+                    32: [1, 1],
+                    33: 0,
+                    34: [2, -1],
+                    35: [1, 1],
+                    36: 0,
+                    37: [2, -1],
+                    38: 0,
+                    39: [1, 1],
+                    40: 0,
+                    41: [2, -1],
+                    42: 0,
+                    43: 0,
+                    44: [1, 1],
+                    45: 0,
+                    46: [2, -1],
+                    47: 0}
+                     
+        for key in path_dict:
+            
+            
+            try:
+                if path_dict[key][0] == 1:
+                    self.path[key].good_place()
+                    self.path[key].effect(path_dict[key][1])
+             
+                elif path_dict[key][0] == 2:
+                    self.path[key].bad_place()
+                    self.path[key].effect(path_dict[key][1])    
+            
+            except:
+                pass
 class Casa:
     
     def __init__(self, x1, y1, x2, y2):
@@ -179,11 +231,17 @@ class Casa:
         self.x2 = x2
         self.y1 = y1
         self.y2 = y2
+        self.id = 0
         self.color = (255, 255, 255)
         self.rect = ''
         
     def bad_place(self):
+        self.id = 2
         self.color = (222, 43, 43)
     
     def good_place(self):
+        self.id = 1
         self.color = (77, 235, 87)
+    
+    def effect(self, code):
+        self.effect = code    

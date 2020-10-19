@@ -34,8 +34,13 @@ class Player:
         
         if self.posicao_atual > 47:
             self.posicao_atual = 47
+        
             
         casa = path[self.posicao_atual]
+        
+        self.posicao_atual += self.analisa_casa(casa)
+        casa = path[self.posicao_atual]
+        
         print(f"Center       : {casa.rect.center}")
         
         if self.player_id == 1:
@@ -46,6 +51,19 @@ class Player:
 
         self.message()
         return self.posicao_atual 
+    
+    def analisa_casa(self, casa):
+        
+        if casa.id == 1:
+            print(f"Caiu em uma casa boa! Vai avançar {casa.effect} casa(s)")
+            return casa.effect
+        
+        elif casa.id == 2:
+            print(f"Caiu em uma casa ruim! Vai voltar {casa.effect} casa(s)")
+            return casa.effect
+        
+        else:
+            return 0
     
     def atualiza_p1(self, casa):
         self.center = casa.rect.center
@@ -70,7 +88,7 @@ class Player:
             print(f"\nFim do jogo! Player {self.player_id} ganhou!")
         
         else:
-            print("\nRole o dado novamente!")        
+            print("\nRole o dado novamente!")
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.player_rect)
