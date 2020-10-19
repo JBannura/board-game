@@ -12,6 +12,8 @@ import pygame
 import random
 import time
 
+from pygame import Rect
+
 class Game:
     
     def __init__(self, width, height, margin, x_grid, y_grid):
@@ -49,6 +51,7 @@ class Game:
                             (self.margin + self.height) * row + self.margin,
                             self.width,
                             self.height)
+                casa.rect = Rect(casa.x1, casa.y1, casa.x2, casa.y2)
                 self.grid[row].append(casa)  # Append a cell
     
     def add_player(self, player):
@@ -202,7 +205,8 @@ class Casa:
         self.y1 = y1
         self.y2 = y2
         self.color = (255, 255, 255)
-    
+        self.rect = ''
+        
     def bad_place(self):
         self.color = (222, 43, 43)
     
@@ -211,29 +215,37 @@ class Casa:
 
 class Player:
     
-    def __init__(self, player_id, casa):
+    def __init__(self, player_id, casa, play):
         
-        self.width  = 5
-        self.height = 5
+        self.width  = 3
+        self.height = 3
+        self.play   = play
         
         if player_id == '0':    
             self.color = (0, 0, 0)
-            self.player_id = 0
-            print(casa.x1)
-            print(casa.y1)
-            print(casa.x2)
-            print(casa.y2)
+            self.player_id = 1
             
-            self.x1 = casa.x1  
-            self.y1 = casa.y1
-            self.x2 = casa.x2 
-            self.y2 = casa.y2 
+            print(f"Center      : {casa.rect.center}")
+    
+            self.center = casa.rect.center
+            self.player_rect = Rect(casa.x1, casa.y1, self.width, self.height)
+            self.player_rect.center = casa.rect.center
+            self.player_rect.center = (self.player_rect.center[0], int(self.player_rect.center[1] - 5))
+            
+            print(f"Player 1 Center: {self.player_rect.center}")
             
         elif player_id == '1':
             self.color = (188, 51, 215)
-            self.player_id = 1
-            self.x = casa.x1
-            self.y = casa.y1 
+            self.player_id = 2
+            
+            print(f"Center      : {casa.rect.center}")
+    
+            self.center = casa.rect.center
+            self.player_rect = Rect(casa.x1, casa.y1, self.width, self.height)
+            self.player_rect.center = casa.rect.center
+            self.player_rect.center = (self.player_rect.center[0], int(self.player_rect.center[1] + 5)) 
+            
+            print(f"Player 2 Center: {self.player_rect.center}")
             
         self.posicao_atual = 0
         self.message()
@@ -245,17 +257,30 @@ class Player:
             self.posicao_atual = 47
             
         casa = path[self.posicao_atual]
+        print(f"Center       : {casa.rect.center}")
         
-        self.x1 = casa.x1  
-        self.y1 = casa.y1
-        self.x2 = casa.x2 
-        self.y2 = casa.y2 
-        #print(f"X: {self.x}")
-        #print(f"Y: {self.y}")
+        if self.player_id == 1:
+            self.atualiza_p1(casa)
+        
+        elif self.player_id == 2:
+            self.atualiza_p2(casa)
 
         self.message()
-        
         return self.posicao_atual 
+    
+    def atualiza_p1(self, casa):
+        self.center = casa.rect.center
+        self.player_rect = Rect(casa.x1, casa.y1, self.width, self.height)
+        self.player_rect.center = casa.rect.center
+        self.player_rect.center = (self.player_rect.center[0], int(self.player_rect.center[1] - 5)) 
+        print(f"Player 1 Center: {self.player_rect.center}")
+        
+    def atualiza_p2(self, casa):
+        self.center = casa.rect.center
+        self.player_rect = Rect(casa.x1, casa.y1, self.width, self.height)
+        self.player_rect.center = casa.rect.center
+        self.player_rect.center = (self.player_rect.center[0], int(self.player_rect.center[1] + 5)) 
+        print(f"Player 2 Center: {self.player_rect.center}")
         
     def message(self):
         
@@ -263,17 +288,14 @@ class Player:
             print("\nInício do jogo!")
         
         elif self.posicao_atual == 47:
-            print("\nFim do jogo!")
+            print(f"\nFim do jogo! Player {self.player_id} ganhou!")
         
         else:
             print("\nRole o dado novamente!")        
 
     def draw(self, screen):
-        pygame.draw.rect(screen, self.color, (self.x1, self.y1, self.x2, self.y2))
-        #font = pygame.font.SysFont('comicsans', 20)
-        #text = font.render(self.button_text, 1, (0, 0, 0))
-        #screen.blit(text, (self.button_x + round(self.button_width/2) - round(text.get_width()/2), self.button_y + round(self.button_height/2) - round(text.get_height()/2)))
-    
+        pygame.draw.rect(screen, self.color, self.player_rect)
+        
 # Define some colors
 BLACK = (0, 0, 0)
 BACKGROUND_COLOR = (94, 191, 226) # Azul bebe
@@ -303,10 +325,11 @@ game.board_coloring()
 game.create_path()
 
 # Player
-player_1 = Player('0', game.path[0])
+player_1 = Player('0', game.path[0], True)
 game.add_player(player_1)
 
-#player_1 = Player('1')
+player_2 = Player('1', game.path[0], False)
+game.add_player(player_2)
 
 # Loop until the user clicks the close button.
 done = False
@@ -318,20 +341,41 @@ clock = pygame.time.Clock()
 start = True
 posicao = 0
 while not done:
-    for event in pygame.event.get():  # User did something
-        if event.type == pygame.QUIT:  # If user clicked close
-            done = True  # Flag that we are done so we exit this loop
-        
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            # User clicks the mouse. Get the position
+    
+    if player_1.play:
+        for event in pygame.event.get():  # User did something
+            if event.type == pygame.QUIT:  # If user clicked close
+                done = True  # Flag that we are done so we exit this loop
             
-            pos = pygame.mouse.get_pos()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # User clicks the mouse. Get the position
+                
+                pos = pygame.mouse.get_pos()
+                
+                for dice in game.dice:
+                    if dice.click(pos):
+                        resultado = game.dice_roll()
+                        posicao = player_1.atualiza_posicao(resultado, game.path)
+                        player_1.play = False
+                        player_2.play = True
+    
+    elif player_2.play:
+        for event in pygame.event.get():  # User did something
+            if event.type == pygame.QUIT:  # If user clicked close
+                done = True  # Flag that we are done so we exit this loop
             
-            for dice in game.dice:
-                if dice.click(pos):
-                    resultado = game.dice_roll()
-                    posicao = player_1.atualiza_posicao(resultado, game.path)
-                    
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # User clicks the mouse. Get the position
+                
+                pos = pygame.mouse.get_pos()
+                
+                for dice in game.dice:
+                    if dice.click(pos):
+                        resultado = game.dice_roll()
+                        posicao = player_2.atualiza_posicao(resultado, game.path)
+                        player_1.play = True
+                        player_2.play = False
+
     # Set the screen background
     game.screen.fill(BACKGROUND_COLOR)
     
