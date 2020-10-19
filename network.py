@@ -23,6 +23,7 @@ class Network:
     def send(self, data):
         try:
             self.client.send(str.encode(data))
+            print("send: ", self.client.recv(2048).decode())
             return self.client.recv(2048).decode()
         except socket.error as e:
             print(e)
