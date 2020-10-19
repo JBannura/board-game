@@ -8,12 +8,14 @@
  
  Explanation video: http://youtu.be/mdTeqiWyFnc
 """
+
 import pygame
+from pygame import Rect
 import random
 import time
 from network import Network
 
-from pygame import Rect
+from button import Button
 
 class Game:
     
@@ -24,7 +26,7 @@ class Game:
         pygame.font.init()
         
         # Set title of screen
-        pygame.display.set_caption("Array Backed Grid")
+        pygame.display.set_caption("MaZe")
         
         # Criando o dado
         self.dice = [Button("Roll", 300, 77, (255, 255, 255))]
@@ -60,7 +62,9 @@ class Game:
     
     def atualiza_posicao(self, posicao):
         self.actual = posicao    
-
+    
+    #def atualiza_janela(self, p1, p2):
+    
     # Dice Roll
     def dice_roll(self):
         diceRoll = random.randint(1, 1)
@@ -167,45 +171,6 @@ class Game:
                 self.path[casa].good_place()
             
             dict_[casa] = casa
-    
-    def read_pos(self, str_):
-        print(str_)
-        str_ = str_.split(",")
-        return int(str_[0]), int(str_[1])
-
-    def make_pos(self, tup):
-        print("make pos: ", str(tup[0]) + "," + str(tup[1]))
-        return str(tup[0]) + "," + str(tup[1])
-
-class Button:
-    
-    # Button creation
-    def __init__(self, text, x, y, color):
-        
-        self.button_text   = text 
-        self.button_x      = x
-        self.button_y      = y
-        self.button_color  = color
-        self.button_width  = 50
-        self.button_height = 35
-    
-    # Draw button
-    def draw(self, screen):
-        pygame.draw.rect(screen, self.button_color, (self.button_x, self.button_y, self.button_width, self.button_height)) 
-        font = pygame.font.SysFont('comicsans', 20)
-        text = font.render(self.button_text, 1, (0, 0, 0))
-        screen.blit(text, (self.button_x + int(self.button_width/2) - int(text.get_width()/2), self.button_y + int(self.button_height/2) - int(text.get_height()/2)))
-
-    # Dice click
-    def click(self, pos):
-        x1 = pos[0]
-        y1 = pos[1]
-        
-        if (self.button_x <= x1 <= self.button_x + self.button_width) and (self.button_y <= y1 <= self.button_y + self.button_height):
-            return True
-        
-        else:
-            return False
 
 class Casa:
     
@@ -222,221 +187,3 @@ class Casa:
     
     def good_place(self):
         self.color = (77, 235, 87)
-
-class Player:
-    
-    def __init__(self, player_id, casa, play):
-        
-        self.width  = 3
-        self.height = 3
-        self.play   = play
-        
-        if player_id == '0':    
-            self.color = (0, 0, 0)
-            self.player_id = 1
-            
-            print(f"Center      : {casa.rect.center}")
-    
-            self.center = casa.rect.center
-            self.player_rect = Rect(casa.x1, casa.y1, self.width, self.height)
-            self.player_rect.center = casa.rect.center
-            self.player_rect.center = (self.player_rect.center[0], int(self.player_rect.center[1] - 5))
-            
-            print(f"Player 1 Center: {self.player_rect.center}")
-            
-        elif player_id == '1':
-            self.color = (188, 51, 215)
-            self.player_id = 2
-            
-            print(f"Center      : {casa.rect.center}")
-    
-            self.center = casa.rect.center
-            self.player_rect = Rect(casa.x1, casa.y1, self.width, self.height)
-            self.player_rect.center = casa.rect.center
-            self.player_rect.center = (self.player_rect.center[0], int(self.player_rect.center[1] + 5)) 
-            
-            print(f"Player 2 Center: {self.player_rect.center}")
-            
-        self.posicao_atual = 0
-        self.message()
-        
-    def atualiza_posicao(self, resultado, path):
-        self.posicao_atual += resultado
-        
-        if self.posicao_atual > 47:
-            self.posicao_atual = 47
-            
-        casa = path[self.posicao_atual]
-        print(f"Center       : {casa.rect.center}")
-        
-        if self.player_id == 1:
-            self.atualiza_p1(casa)
-        
-        elif self.player_id == 2:
-            self.atualiza_p2(casa)
-
-        self.message()
-        return self.posicao_atual 
-    
-    def atualiza_p1(self, casa):
-        self.center = casa.rect.center
-        self.player_rect = Rect(casa.x1, casa.y1, self.width, self.height)
-        self.player_rect.center = casa.rect.center
-        self.player_rect.center = (self.player_rect.center[0], int(self.player_rect.center[1] - 5)) 
-        print(f"Player 1 Center: {self.player_rect.center}")
-        
-    def atualiza_p2(self, casa):
-        self.center = casa.rect.center
-        self.player_rect = Rect(casa.x1, casa.y1, self.width, self.height)
-        self.player_rect.center = casa.rect.center
-        self.player_rect.center = (self.player_rect.center[0], int(self.player_rect.center[1] + 5)) 
-        print(f"Player 2 Center: {self.player_rect.center}")
-        
-    def message(self):
-        
-        if self.posicao_atual == 0:
-            print("\nInício do jogo!")
-        
-        elif self.posicao_atual == 47:
-            print(f"\nFim do jogo! Player {self.player_id} ganhou!")
-        
-        else:
-            print("\nRole o dado novamente!")        
-
-    def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.player_rect)
-
-def main():
-    
-    # Network
-    n = Network()
-    
-    # Game
-    # This sets the WIDTH and HEIGHT of each grid location
-    WIDTH = 20
-    HEIGHT = 20
-    
-    # This sets the margin between each cell
-    MARGIN = 5
-
-    # Y grid
-    y_grid = 12
-
-    # X grid
-    x_grid = 10
-
-    # Creating Game
-    game = Game(WIDTH, HEIGHT, MARGIN, x_grid, y_grid) 
-    game.create_screen(500, 255)
-    game.create_board()
-    game.board_coloring()
-    game.create_path()
-
-    # Player
-    posicao = 0
-    
-    player_1 = Player('0', game.path[0], True)
-    game.add_player(player_1)
-
-    player_2 = Player('1', game.path[0], False)
-    game.add_player(player_2)
-
-    # Colors
-    BACKGROUND_COLOR = (94, 191, 226) # Azul bebe
-
-    # Loop until the user clicks the close button.
-    done = False
-    
-    # Used to manage how fast the screen updates
-    clock = pygame.time.Clock()
-
-    # -------- Main Program Loop -----------
-
-    while not done:
-        
-        for event in pygame.event.get():  # User did something
-            if event.type == pygame.QUIT:  # If user clicked close
-                done = True  # Flag that we are done so we exit this loop
-            
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                # User clicks the mouse. Get the position
-                
-                pos = pygame.mouse.get_pos()
-                
-                for dice in game.dice:
-                    if dice.click(pos):
-                        resultado = game.dice_roll()
-                        p2Pos = game.read_pos(n.send(game.make_pos(player_1.center)))
-                        player_2.center = p2Pos
-                        posicao = player_2.atualiza_posicao(resultado, game.path)
-        
-        # if player_1.play:
-        #     for event in pygame.event.get():  # User did something
-        #         if event.type == pygame.QUIT:  # If user clicked close
-        #             done = True  # Flag that we are done so we exit this loop
-                
-        #         elif event.type == pygame.MOUSEBUTTONDOWN:
-        #             # User clicks the mouse. Get the position
-                    
-        #             pos = pygame.mouse.get_pos()
-                    
-        #             for dice in game.dice:
-        #                 if dice.click(pos):
-        #                     resultado = game.dice_roll()
-        #                     posicao = player_1.atualiza_posicao(resultado, game.path)
-        #                     player_1.play = False
-        #                     player_2.play = True
-        
-        # elif player_2.play:
-        #     for event in pygame.event.get():  # User did something
-        #         if event.type == pygame.QUIT:  # If user clicked close
-        #             done = True  # Flag that we are done so we exit this loop
-                
-        #         elif event.type == pygame.MOUSEBUTTONDOWN:
-        #             # User clicks the mouse. Get the position
-                    
-        #             pos = pygame.mouse.get_pos()
-                    
-        #             for dice in game.dice:
-        #                 if dice.click(pos):
-        #                     resultado = game.dice_roll()
-        #                     posicao = player_2.atualiza_posicao(resultado, game.path)
-        #                     player_1.play = True
-        #                     player_2.play = False
-
-        # Set the screen background
-        game.screen.fill(BACKGROUND_COLOR)
-        
-        # Draw the grid
-        for row in range(x_grid):
-            for column in range(y_grid):
-                casa = game.grid[row][column]
-                pygame.draw.rect(game.screen,
-                                casa.color,
-                                [casa.x1,
-                                casa.y1,
-                                casa.x2,
-                                casa.y2])
-        
-        # Displaying buttons
-        for dice in game.dice:
-            dice.draw(game.screen)
-        
-        # Displaying players
-        for player in game.player_list:
-            player.draw(game.screen)
-            if posicao == 47:
-                done = True
-                
-        # Limit to 60 frames per second
-        clock.tick(60)
-                
-        # Go ahead and update the screen with what we've drawn.
-        pygame.display.update()
-                
-    # Be IDLE friendly. If you forget this line, the program will 'hang' on exit.
-    time.sleep(2)
-    pygame.quit()
-
-if __name__ == "__main__":
-    main()
