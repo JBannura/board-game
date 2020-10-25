@@ -45,7 +45,7 @@ class Board:
             
         elif self.p2.y > 49:
             self.p2.y = 49
-            self.p1.win = True
+            self.p2.win = True
             
         self.board[self.p1.prev_x][self.p1.prev_y] = c(0, 'yellow')
         self.board[self.p2.prev_x][self.p2.prev_y] = c(0, 'yellow')

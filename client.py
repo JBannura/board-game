@@ -14,6 +14,7 @@ def roll_dice(name):
             return roll
         
         else:
+            print("Jogada inválida!")
             pass
 
 def encode_to_send(roll, p1):
