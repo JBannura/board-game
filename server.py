@@ -23,9 +23,11 @@ print("Server iniciado! Esperando jogadores...")
 def threaded_client(conn, jogador):
     
     if jogador == 0:
-        conn.send(str.encode("0,1,0"))
+        #print("Enviando posição do jogador 0")
+        conn.send(str.encode("0,1,0,1,2,0"))
     elif jogador == 1:
-        conn.send(str.encode("1,2,0"))
+        #print("Enviando posição do jogador 1")
+        conn.send(str.encode("1,2,0,0,1,0"))
         
     reply = ""
     while True:
@@ -82,7 +84,6 @@ currentPlayer = 0
 
 while True:
     conn, addr = s.accept()
-    
     print("Conectado com: ", addr)
 
     status = start_new_thread(threaded_client, (conn, currentPlayer))

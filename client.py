@@ -2,6 +2,7 @@ from network import Network
 import random
 from board import Board
 from player import Player
+import time
 
 def roll_dice(name):
     
@@ -9,7 +10,7 @@ def roll_dice(name):
         choice = input(f"{name}, pressione 1 para rolar o dado: ")
         
         if choice == '1':
-            roll = random.randint(10, 10)    
+            roll = random.randint(1, 6)    
             print(f"{name} rolou {roll}!")
             return roll
         
@@ -33,32 +34,14 @@ def main():
     
     player_name = input("Bem vindo ao corrida maluca!\n\nPara começar, digite seu nome: ")
     p1 = Player(player_name, p[1], p[2])
-    p2 = Player('', 1, 0)
+    p2 = Player('', p[4], p[5])
     board = Board(p1, p2)
     board.refresh()
-    
-    if int(p[0]) == 0:
-        play = True
-    else:
-        play = False
     
     run = True
     
     while run:   
         
-        # if play == False:
-        #     print("Aguarde a vez do outro jogador.")
-        
-        # while play != True:
-        #     try:
-        #         n.send('False')
-        #         play = bool(n.receive().split(",")[-1])
-            
-        #     except:
-        #         pass
-            
-        #     print(f"Play: {play}")
-            
         n.send(encode_to_send(roll_dice(player_name), p1))
         p2_status = decode_received(n.receive())
 
@@ -67,16 +50,17 @@ def main():
         
         board.refresh()
 
-        if p1.win:
-            print(f"Parabéns {p1.name} você venceu!!")
-            print("\nFim de jogo.")
-            
-        
-        elif p2.win:
-            print(f"Que pena {p2.name}, você perdeu...")
+        if p2.win:
+            print(f"Que pena {p1.name}, você perdeu...")
             print("\nFim de jogo.")
             break
-            
+        
+        elif p1.win:
+            print(f"Parabéns {p1.name} você venceu!!")
+            print("\nFim de jogo.")
+            time.sleep(5)
+            break
+                        
 main()
 
         
